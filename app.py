@@ -14,6 +14,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'a-very-secret-key-for-flash-messages'
 db = SQLAlchemy(app)
 
+# --- Custom Jinja2 Filter ---
+@app.template_filter('fromjson')
+def fromjson_filter(value):
+    try:
+        return json.loads(value)
+    except (json.JSONDecodeError, TypeError):
+        return {}
+
 # --- Database Models (MODIFIED) ---
 class UserDetails(db.Model):
     id = db.Column(db.Integer, primary_key=True)
