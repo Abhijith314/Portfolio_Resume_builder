@@ -23,6 +23,10 @@
             margin: 5px 0;
             font-size: 12px;
         }
+        .contact-info a {
+            color: #333;
+            text-decoration: none;
+        }
         h2 {
             font-size: 18px;
             border-bottom: 1px solid #ccc;
@@ -44,16 +48,34 @@
             margin: 0;
             font-size: 12px;
         }
-        .year {
+        .subtitle {
             font-style: italic;
             color: #666;
+            font-size: 12px;
+        }
+        .skills-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .skills-list li {
+            display: inline-block;
+            background-color: #f2f2f2;
+            border-radius: 4px;
+            padding: 5px 10px;
+            margin: 2px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>{{ user.name }}</h1>
-        <p class="contact-info">{{ user.title }} | {{ user.email }} | {{ user.phone }} | {{ user.location }}</p>
+        <p class="contact-info">
+            {{ user.title }} | {{ user.email }} | {{ user.phone }} | {{ user.location }}
+            {% if user.linkedin_url %}| <a href="{{ user.linkedin_url }}">LinkedIn</a>{% endif %}
+            {% if user.github_url %}| <a href="{{ user.github_url }}">GitHub</a>{% endif %}
+        </p>
     </div>
 
     <div class="section">
@@ -61,35 +83,68 @@
         <p>{{ user.about_me }}</p>
     </div>
 
+    {% if user.skills %}
+    <div class="section">
+        <h2>Skills</h2>
+        {% set skills_dict = user.skills | fromjson %}
+        {% for category, skills in skills_dict.items() %}
+            <h3>{{ category }}</h3>
+            <p>{{ skills }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% if user.experiences %}
     <div class="section">
         <h2>Work Experience</h2>
         {% for exp in user.experiences %}
         <div class="item">
             <h3>{{ exp.role }} - {{ exp.company }}</h3>
-            <p class="year">{{ exp.year }}</p>
-            <p>{{ exp.description | safe }}</p>
+            <p class="subtitle">{{ exp.location }} | {{ exp.date_range }}</p>
+            <div>{{ exp.description | safe }}</div>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
+    {% if user.projects %}
     <div class="section">
         <h2>Projects</h2>
+        {% for proj in user.projects %}
         <div class="item">
-            <h3>{{ user.project1_name }}</h3>
-            <p>{{ user.project1_description }}</p>
-            <p><strong>Technologies:</strong> {{ user.project1_skills }}</p>
+            <h3>{{ proj.project_name }}</h3>
+            {% if proj.link %}<p><a href="{{ proj.link }}">{{ proj.link }}</a></p>{% endif %}
+            <p>{{ proj.description }}</p>
+            <p><strong>Technologies:</strong> {{ proj.skills }}</p>
         </div>
-        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
+    {% if user.educations %}
     <div class="section">
         <h2>Education</h2>
+        {% for edu in user.educations %}
         <div class="item">
-            <h3>{{ user.program_name_1 }} - {{ user.program_1_university }}</h3>
-            <p class="year">{{ user.program1_year }}</p>
-            <p><strong>Skills/Coursework:</strong> {{ user.program1_skills }}</p>
+            <h3>{{ edu.program_name }} - {{ edu.university }}</h3>
+            <p class="subtitle">{{ edu.location }} | {{ edu.date_range }}</p>
+            <p><strong>Grade:</strong> {{ edu.grade }} ({{ edu.grade_type }})</p>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    {% if user.certificates %}
+    <div class="section">
+        <h2>Certificates</h2>
+        {% for cert in user.certificates %}
+        <div class="item">
+            <h3>{{ cert.name }} - {{ cert.issuer }}</h3>
+            <p class="subtitle">{{ cert.date }}</p>
+            {% if cert.link %}<p><a href="{{ cert.link }}">View Credential</a></p>{% endif %}
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 </body>
 </html>
